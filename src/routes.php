@@ -43,19 +43,31 @@ $app->get('/searchrangesalary/[{min},{max}]', function ($request, $response, $ar
     foreach ($userList as $user) {
         $salary = intval(str_replace(array('$', ','), '', $user['salary']));
         if ($salary > intval($args['min']) && $salary < intval($args['max'])) {
-            $user['html_url'] = $request->getUri()->withPath($this->router->pathFor('view')) . $user['id'];
             array_push($obj, $user);
         }
     }
-//    header('Content-type: text/xml');
-    header("Content-type: application/xml; charset=utf-8");
-//    $response2 = $response->withHeader('Content-type', 'text/xml');
-    $xml = array2xml($obj, false);
-//    array_walk_recursive($obj->items, array($xml, 'addChild'));
-//    return $response2->getBody()->write($xml);
-    echo htmlspecialchars($xml);
-//    return $response2->getBody()->write(htmlspecialchars($xml));
+    $xml_user_info = new SimpleXMLElement("<?xml version=\"1.0\"?><users></users>");
+    array_to_xml($obj, $xml_user_info);
+    return $response->withStatus(200)
+                    ->withHeader('Content-type', 'Content-type: text/xml; charset=utf-8')
+                    ->write($xml_user_info->asXML());
 })->setName('searchrangesalary');
+
+function array_to_xml($array, &$xml_user_info) {
+    foreach ($array as $key => $value) {
+        if (is_array($value)) {
+            if (!is_numeric($key)) {
+                $subnode = $xml_user_info->addChild("$key");
+                array_to_xml($value, $subnode);
+            } else {
+                $subnode = $xml_user_info->addChild("item$key");
+                array_to_xml($value, $subnode);
+            }
+        } else {
+            $xml_user_info->addChild("$key", htmlspecialchars("$value"));
+        }
+    }
+}
 
 function array2xml($array, $xml = false) {
     if ($xml === false) {
