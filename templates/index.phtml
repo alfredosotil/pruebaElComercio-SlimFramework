@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Slim 3</title>
+        <link href='//fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/semantic-ui/2.2.6/semantic.min.css">
+        <script src="https://cdn.jsdelivr.net/semantic-ui/2.2.6/semantic.min.js"></script>
+    </head>
+    <body>
+        <div class="ui raised very padded text container segment">
+            <h2 class="ui header">Usuarios!</h2>
+            <div class="ui search">
+                <div class="ui left icon input">
+                    <input class="prompt" type="text" placeholder="busca por email">
+                    <i class="mail outline icon"></i>
+                </div>
+            </div>
+            <ul>
+                <?php foreach ($userList as $user): ?>
+                    <li><a class="" href="<?= $uri . $user['id'] ?>"><span><?= $user['name'] ?></span></a></li>
+                <?php endforeach; ?>
+            </ul>
+            <p></p>
+            <p></p>
+        </div>
+    </body>
+    <script>
+        (function () {
+            $('.ui.search')
+                    .search({
+                        apiSettings: {
+                            url: '<?= $uriSearch ?>{query}'
+                        },
+                        fields: {
+                            results: 'items',
+                            title: 'name',
+                            url: 'html_url'
+                        },
+                        minCharacters: 3
+                    });
+        })();
+    </script>
+</html>
