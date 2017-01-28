@@ -38,17 +38,35 @@ $app->get('/search/[{email}]', function ($request, $response, $args) {
 })->setName('search');
 $app->get('/searchrangesalary/[{min},{max}]', function ($request, $response, $args) {
     $this->logger->info("Search range salary'/searchrangesalary' route");
-    $obj = new stdClass();
-    $obj->items = array();
+    $obj = array();
     $userList = json_decode(file_get_contents('../data/employees.json'), TRUE);
     foreach ($userList as $user) {
-        $salary = intval(str_replace(array('$',','), '', $user['salary']));
+        $salary = intval(str_replace(array('$', ','), '', $user['salary']));
         if ($salary > intval($args['min']) && $salary < intval($args['max'])) {
             $user['html_url'] = $request->getUri()->withPath($this->router->pathFor('view')) . $user['id'];
-            array_push($obj->items, $user);
+            array_push($obj, $user);
         }
     }
-    $obj->count = count($obj->items);
-    $newResponse = $response->withJson($obj, 200, null);
-    return $newResponse;
+//    header('Content-type: text/xml');
+    header("Content-type: application/xml; charset=utf-8");
+//    $response2 = $response->withHeader('Content-type', 'text/xml');
+    $xml = array2xml($obj, false);
+//    array_walk_recursive($obj->items, array($xml, 'addChild'));
+//    return $response2->getBody()->write($xml);
+    echo htmlspecialchars($xml);
+//    return $response2->getBody()->write(htmlspecialchars($xml));
 })->setName('searchrangesalary');
+
+function array2xml($array, $xml = false) {
+    if ($xml === false) {
+        $xml = new SimpleXMLElement('<result/>');
+    }
+    foreach ($array as $key => $value) {
+        if (is_array($value)) {
+            array2xml($value, $xml->addChild($key));
+        } else {
+            $xml->addChild($key, $value);
+        }
+    }
+    return $xml->asXML();
+}

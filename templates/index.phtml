@@ -19,7 +19,12 @@
             </div>
             <ul>
                 <?php foreach ($userList as $user): ?>
-                    <li><a class="" href="<?= $uri . $user['id'] ?>"><span><?= $user['name'] ?></span></a></li>
+                    <li>
+                        <a class="" href="<?= $uri . $user['id'] ?>"><span><?= $user['name'] ?></span></a>, 
+                        <span><?= $user['email'] ?></span>, 
+                        <span><?= $user['position'] ?></span>, 
+                        <span><?= $user['salary'] ?></span>
+                    </li>
                 <?php endforeach; ?>
             </ul>
             <p></p>
