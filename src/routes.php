@@ -1,7 +1,7 @@
 <?php
 
 // Routes
-
+//lista de usuarios
 $app->get('/', function ($request, $response, $args) {
     $this->logger->info("List Users '/' route");
     $args['uri'] = $request->getUri()->withPath($this->router->pathFor('view'));
@@ -9,6 +9,7 @@ $app->get('/', function ($request, $response, $args) {
     $args['userList'] = json_decode(file_get_contents('../data/employees.json'), TRUE);
     return $this->renderer->render($response, 'index.phtml', $args);
 })->setName('index');
+//vista de usuario segun el id
 $app->get('/view/[{id}]', function ($request, $response, $args) {
     $this->logger->info("View User'/view' route");
     $args['uri'] = $request->getUri()->withPath($this->router->pathFor('index'));
@@ -21,6 +22,7 @@ $app->get('/view/[{id}]', function ($request, $response, $args) {
     }
     return $this->renderer->render($response, 'view.phtml', $args);
 })->setName('view');
+//buscar usuario por email
 $app->get('/search/[{email}]', function ($request, $response, $args) {
     $this->logger->info("Search user'/search' route");
     $obj = new stdClass();
@@ -36,6 +38,7 @@ $app->get('/search/[{email}]', function ($request, $response, $args) {
     $newResponse = $response->withJson($obj, 200, null);
     return $newResponse;
 })->setName('search');
+//buscar usuario por rango de salario 
 $app->get('/searchrangesalary/[{min},{max}]', function ($request, $response, $args) {
     $this->logger->info("Search range salary'/searchrangesalary' route");
     $obj = array();
@@ -52,7 +55,7 @@ $app->get('/searchrangesalary/[{min},{max}]', function ($request, $response, $ar
                     ->withHeader('Content-type', 'Content-type: text/xml; charset=utf-8')
                     ->write($xml_user_info->asXML());
 })->setName('searchrangesalary');
-
+//function adicional para convertir de array to xml
 function array_to_xml($array, &$xml_user_info) {
     foreach ($array as $key => $value) {
         if (is_array($value)) {
@@ -67,18 +70,4 @@ function array_to_xml($array, &$xml_user_info) {
             $xml_user_info->addChild("$key", htmlspecialchars("$value"));
         }
     }
-}
-
-function array2xml($array, $xml = false) {
-    if ($xml === false) {
-        $xml = new SimpleXMLElement('<result/>');
-    }
-    foreach ($array as $key => $value) {
-        if (is_array($value)) {
-            array2xml($value, $xml->addChild($key));
-        } else {
-            $xml->addChild($key, $value);
-        }
-    }
-    return $xml->asXML();
 }
